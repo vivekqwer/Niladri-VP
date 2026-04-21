@@ -437,6 +437,35 @@ for (const sql of migrations) {
   try { db.exec(sql); } catch(e) { /* column already exists */ }
 }
 
+// ── Role integrity: 3 allowed roles (student, instructor, admin) ──
+// SQLite can't add CHECK to existing column via ALTER, so we use triggers.
+// Any existing rows with invalid roles are normalised to 'student'.
+db.prepare(
+  `UPDATE users SET role = 'student' WHERE role IS NULL OR role NOT IN ('student','instructor','admin')`
+).run();
+
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+
+  DROP TRIGGER IF EXISTS trg_users_role_insert;
+  CREATE TRIGGER trg_users_role_insert
+  BEFORE INSERT ON users
+  FOR EACH ROW
+  WHEN NEW.role NOT IN ('student','instructor','admin')
+  BEGIN
+    SELECT RAISE(ABORT, 'Invalid role: must be student, instructor, or admin');
+  END;
+
+  DROP TRIGGER IF EXISTS trg_users_role_update;
+  CREATE TRIGGER trg_users_role_update
+  BEFORE UPDATE OF role ON users
+  FOR EACH ROW
+  WHEN NEW.role NOT IN ('student','instructor','admin')
+  BEGIN
+    SELECT RAISE(ABORT, 'Invalid role: must be student, instructor, or admin');
+  END;
+`);
+
 // Back-fill slugs for existing courses that have none
 function slugify(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

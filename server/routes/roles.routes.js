@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
-
-const VALID_ROLES = ['student', 'instructor', 'teaching_assistant', 'admin'];
+const { VALID_ROLES } = require('../lib/roles');
 
 // GET /api/roles/users  (admin only)
 router.get('/users', (req, res) => {
