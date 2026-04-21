@@ -252,6 +252,7 @@
 
 <script src="/assets/js/api.js"></script>
 <script src="/assets/js/auth-guard.js"></script>
+<script>requireRole(['student']);</script>
 <script>
   function toast(msg, type = 'success') {
     const tc = document.getElementById('toast-container');

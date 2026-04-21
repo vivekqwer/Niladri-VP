@@ -1040,7 +1040,7 @@ const SECTIONS = {
 //  AUTH
 // ─────────────────────────────────────────────
 function getToken() {
-  return localStorage.getItem('tfr_token');
+  return localStorage.getItem('archive_token');
 }
 
 function checkAuth() {
@@ -1056,7 +1056,7 @@ function checkAuth() {
 }
 
 function handleLogout() {
-  localStorage.removeItem('tfr_token');
+  localStorage.removeItem('archive_token');
   window.location.href = '/login';
 }
 
@@ -1843,5 +1843,8 @@ function initAnimations() {
   loadDashboard();
 })();
 </script>
+<script src="/assets/js/api.js"></script>
+<script src="/assets/js/auth-guard.js"></script>
+<script>requireRole(['admin']);</script>
 </body>
 </html>

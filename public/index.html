@@ -818,6 +818,15 @@
 
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script>
+    // ─── ROLE HOME HELPER (keep in sync with /assets/js/auth-guard.js) ───
+    function roleHome(role) {
+      return {
+        admin: '/admin-panel.html',
+        instructor: '/instructor-dashboard.html',
+        student: '/student-dashboard.html'
+      }[role] || '/student-dashboard.html';
+    }
+
     // ─── AUTH GUARD ───
     (function() {
       const token = localStorage.getItem('archive_token');
@@ -825,7 +834,7 @@
       if (token && user) {
         try {
           const u = JSON.parse(user);
-          window.location.replace(u.role === 'instructor' ? '/instructor-dashboard.html' : '/student-dashboard.html');
+          window.location.replace(roleHome(u.role));
         } catch(e) { /* invalid JSON, stay on page */ }
       }
     })();
@@ -986,7 +995,7 @@
         });
         localStorage.setItem('archive_token', data.token);
         localStorage.setItem('archive_user',  JSON.stringify(data.user));
-        window.location.href = data.user.role === 'instructor' ? '/instructor-dashboard.html' : '/student-dashboard.html';
+        window.location.href = roleHome(data.user.role);
       } catch (err) {
         if (err.message && err.message.toLowerCase().includes('verify')) {
           pendingEmail = document.getElementById('login-email').value;
@@ -1044,7 +1053,7 @@
         localStorage.setItem('archive_user',  JSON.stringify(data.user));
         showPanel('panel-verified');
         setTimeout(() => {
-          window.location.href = data.user.role === 'instructor' ? '/instructor-dashboard.html' : '/student-dashboard.html';
+          window.location.href = roleHome(data.user.role);
         }, 1500);
       } catch (err) {
         showError('otp-error', err.message);
